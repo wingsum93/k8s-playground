@@ -1,0 +1,51 @@
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qbittorrent
+  namespace: default
+  labels:
+    app: qbittorrent
+spec:
+  containers:
+    - name: qbittorrent
+      image: lscr.io/linuxserver/qbittorrent:latest
+      imagePullPolicy: IfNotPresent
+
+      env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Hong_Kong"
+        - name: WEBUI_PORT
+          value: "8080"
+
+      ports:
+        - name: webui
+          containerPort: 8080
+          protocol: TCP
+
+        - name: torrent-tcp
+          containerPort: 6881
+          protocol: TCP
+
+        - name: torrent-udp
+          containerPort: 6881
+          protocol: UDP
+
+      volumeMounts:
+        - name: downloads
+          mountPath: /downloads
+
+        - name: config
+          mountPath: /config
+
+  volumes:
+    - name: downloads
+      persistentVolumeClaim:
+        claimName: qbittorrent-pvc
+
+    - name: config
+      emptyDir: {}
